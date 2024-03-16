@@ -105,7 +105,7 @@
  								<button type="button" class="close pull-right" data-dismiss="modal">&times;</button>
  							</div>
  							<div class="modal-body text-justify">
- 								<form class="form-horizontal" action="<?php echo base_url() . 'admin/input-fingerprint' ?>" method="post" enctype="multipart/form-data">
+ 								<form class="form-horizontal" action="<?php echo base_url() . 'admin/edit-fingerprint' ?>" method="post" enctype="multipart/form-data">
  									<div class="modal-body">
  										<div class="form-group">
  											<label class="col-sm-12">ID Pegawai</label>

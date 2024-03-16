@@ -479,8 +479,6 @@ class Admin extends CI_Controller
 					}
 				}
 			}
-
-
 			if ($pass) {
 				$exitDate = $value['datetime'];
 				$date1 = DateTime::createFromFormat('d/m/Y H:i:s', $entryDate);
@@ -538,7 +536,7 @@ class Admin extends CI_Controller
 		$highestRow = $targetSheet->getHighestRow();
 		$highestColumn = $targetSheet->getHighestColumn();
 
-		for ($row = 2; $row <= 50; $row++) {
+		for ($row = 2; $row <= 100; $row++) {
 			$rowData = $targetSheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
 			$data = [
 				"id_fingerprint" => $rowData[0][2],
