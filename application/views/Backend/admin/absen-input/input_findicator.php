@@ -70,7 +70,7 @@
  										<select class="form-control" name="id_pegawai">
  											<?php
 												foreach ($pegawai as $value) : ?>
- 												<option value="<?php echo $pegawai[0]['id_pegawai']; ?>"><?php echo $pegawai[0]['id_pegawai']; ?></option>
+ 												<option value="<?php echo $value['id_pegawai']; ?>"><?php echo $value['id_pegawai']; ?></option>
  											<?php endforeach ?>
  										</select>
  										<!-- <input type="text" name="id_pegawai" class="form-control " required> -->
@@ -95,49 +95,45 @@
  		</div>
 
  		<?php
-			foreach ($fingerprint as $b) : ?>
- 			<tr>
- 				<div class="modal fade" id="editfingerprintmodal<?= $b['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="editfingerprintmodal<?= $b['id']; ?>">
- 					<div class="modal-dialog modal-lg">
- 						<div class="modal-content">
- 							<div class="modal-header text-center">
- 								<h5 class="modal-title text-secondary"><strong>Edit Data Fingerprint</strong></h5>
- 								<button type="button" class="close pull-right" data-dismiss="modal">&times;</button>
- 							</div>
- 							<div class="modal-body text-justify">
- 								<form class="form-horizontal" action="<?php echo base_url() . 'admin/edit-fingerprint' ?>" method="post" enctype="multipart/form-data">
- 									<div class="modal-body">
- 										<div class="form-group">
- 											<label class="col-sm-12">ID Pegawai</label>
- 											<div class="col-sm-12">
- 												<select class="form-control" name="id_pegawai">
- 													<?php
-														foreach ($pegawai as $value) : ?>
- 														<option <?php echo strcmp($b['id_pegawai'], $value['id_pegawai']) ? "" : "selected" ?> value="<?php echo $value['id_pegawai']; ?>"><?php echo $value['id_pegawai']; ?></option>
- 													<?php endforeach ?>
- 												</select>
- 												<!-- <input type="text" name="id_pegawai" class="form-control " required> -->
- 											</div>
- 											<label class="col-sm-12">ID Fingerprint</label>
- 											<div class="col-sm-12">
- 												<input type="text" value="<?php echo $b['id_fingerprint']; ?>" name="id_fingerprint" class="form-control " required>
- 											</div>
- 											<div class="col-sm-12">
- 												<input type="hidden" value="<?php echo $b['id']; ?>" name="id" class="form-control " required>
+			foreach ($fingerprint as $value) : ?>
+ 			<div class="modal fade" id="editfingerprintmodal<?= $value['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="editfingerprintmodal<?= $value['id']; ?>">
+ 				<div class="modal-dialog modal-lg">
+ 					<div class="modal-content">
+ 						<div class="modal-header text-center">
+ 							<h5 class="modal-title text-secondary"><strong>Edit Data Fingerprint</strong></h5>
+ 							<button type="button" class="close pull-right" data-dismiss="modal">&times;</button>
+ 						</div>
+ 						<div class="modal-body text-justify">
+ 							<form class="form-horizontal" action="<?php echo base_url() . 'admin/edit-fingerprint' ?>" method="post" enctype="multipart/form-data">
+ 								<div class="modal-body">
+ 									<div class="form-group">
+ 										<label class="col-sm-12">ID Pegawai</label>
+ 										<div class="col-sm-12">
+ 											<select class="form-control" name="id_pegawai">
+ 												<?php
+													foreach ($pegawai as $valuePegawai) : ?>
+ 													<option <?php echo strcmp($value['id_pegawai'], $valuePegawai['id_pegawai']) ? "" : "selected" ?> value="<?php echo $valuePegawai['id_pegawai']; ?>"><?php echo $valuePegawai['id_pegawai']; ?></option>
+ 												<?php endforeach ?>
+ 											</select>
+ 											<!-- <input type="text" name="id_pegawai" class="form-control " required> -->
+ 										</div>
+ 										<label class="col-sm-12">ID Fingerprint</label>
+ 										<div class="col-sm-12">
+ 											<input type="text" value="<?php echo $value['id_fingerprint']; ?>" name="id_fingerprint" class="form-control " required>
+ 										</div>
+ 										<div class="col-sm-12">
+ 											<input type="hidden" value="<?php echo $value['id']; ?>" name="id" class="form-control " required>
  										</div>
  									</div>
- 							</div>
- 							<div class="modal-footer">
- 								<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Close</button>
- 								<button type="submit" class="btn btn-primary btn-flat" id="simpan">Upload</button>
+ 								</div>
+ 								<div class="modal-footer">
+ 									<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Close</button>
+ 									<button type="submit" class="btn btn-primary btn-flat" id="simpan">Upload</button>
 
- 							</div>
+ 								</div>
  							</form>
  						</div>
-
  					</div>
  				</div>
- 			</tr>
+ 			</div>
  		<?php endforeach ?>
-
- 	</div>

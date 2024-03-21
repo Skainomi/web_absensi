@@ -95,13 +95,6 @@
                                          <input type="text" name="salary" class="form-control" required>
                                      </div>
                                  </div>
-                                 <div class="form-group">
-
-                                     <label class="col-sm-12">Lembur/jam</label>
-                                     <div class="col-sm-12">
-                                         <input type="text" name="overtime" class="form-control" required>
-                                     </div>
-                                 </div>
                              </div>
                              <div class="modal-footer">
                                  <button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Close</button>
@@ -150,13 +143,6 @@
                                          <label class="col-sm-12">Gaji/hari</label>
                                          <div class="col-sm-12">
                                              <input type="text" name="salary" value="<?= $salary ?>" class="form-control" required>
-                                         </div>
-                                     </div>
-                                     <div class="form-group">
-
-                                         <label class="col-sm-12">Lembur/Jam</label>
-                                         <div class="col-sm-12">
-                                             <input type="text" name="overtime" value="<?= $overtime ?>" class="form-control" required>
                                          </div>
                                      </div>
 

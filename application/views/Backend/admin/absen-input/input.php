@@ -1,5 +1,36 @@
  <!--Content right-->
+ <?php
+	function nmbulan($angka)
+	{
 
+		switch ($angka) {
+			case 1:
+				return "Januari";
+			case 2:
+				return "Februari";
+			case 3:
+				return "Maret";
+			case 4:
+				return "April";
+			case 5:
+				return "Mei";
+			case 6:
+				return "Juni";
+			case 7:
+				return "Juli";
+			case 8:
+				return "Agustus";
+			case 9:
+				return "September";
+			case 10:
+				return "Oktober";
+			case 11:
+				return "November";
+			case 12:
+				return "Desember";
+		}
+	}
+	?>
  <div class="col-sm-9 col-xs-12 content pt-3 pl-0">
  	<?php if ($this->session->flashdata('flash')) : ?>
  		<div class="alert alert-info alert-dismissible fade show" role="alert">
@@ -20,12 +51,59 @@
  				<!-- <button class="btn btn-round btn-theme" style="background-color:mediumblue" data-toggle="modal" data-target="#filterModal"><i class="fa fa-filter"></i> Filter</button> -->
  				<button class="btn btn-round btn-theme" data-toggle="modal" data-target="#inputModal"><i class="fa fa-plus"></i> Tambah</button>
  			</div>
- 			<div class="col-sm-4 mb-4 pull-right">
- 				<input type="text" id="min-date" class="form-control mb-1" data-date-format="yyyy-mm-dd" placeholder="From:">
- 				<input type="text" id="max-date" class="form-control" data-date-format="yyyy-mm-dd" placeholder="To:">
- 			</div>
  		</div>
+
+ 		<form action="tampil-input" method="post">
+ 			<div class="row ">
+
+ 				<div class="col-lg-3">
+
+ 					<select name="th" id="th" class="form-control">
+ 						<option value="">- PILIH TAHUN -</option>
+ 						<?php
+							foreach ($list_th as $t) {
+								if ($thn == $t['th']) {
+							?>
+ 								<option selected value="<?php echo $t['th'];  ?>"><?php echo $t['th']; ?></option>
+ 							<?php
+								} else {
+								?>
+ 								<option value="<?php echo $t['th']; ?>"><?php echo $t['th']; ?></option>
+ 						<?php
+								}
+							}
+							?>
+ 					</select>
+ 				</div>
+ 				<div class="col-lg-3">
+
+ 					<select name="bln" id="bln" class="form-control ">
+ 						<option value="">- PILIH BULAN -</option>
+ 						<?php
+							foreach ($list_bln as $t) {
+								if ($blnnya == $t['bln']) {
+							?>
+ 								<option selected value="<?php $t['bln'];  ?>"><?php echo nmbulan($t['bln']); ?></option>
+ 							<?php
+								} else {
+								?>
+ 								<option value="<?php echo $t['bln']; ?>"><?php echo nmbulan($t['bln']); ?></option>
+ 						<?php
+								}
+							}
+							?>
+ 					</select>
+ 				</div>
+ 				<div class="col-lg-3">
+ 					&nbsp;
+ 					<button type="submit" class="btn btn-primary mb-3"><i class="fa fa-search"></i>Cari</button>
+ 					&nbsp;
+ 				</div>
+ 				<!--  -->
+ 			</div>
+ 		</form>
  		<div class="table-responsive">
+
  			<table id="example" class="table table-striped table-bordered">
  				<thead>
  					<tr>

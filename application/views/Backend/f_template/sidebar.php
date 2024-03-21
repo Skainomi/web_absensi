@@ -34,8 +34,8 @@
                <span class="none">Data Absensi<i class="fa fa-angle-down pull-right align-bottom"></i></span>
              </a>
              <ul class="children" id="absensi">
-               <li class="child"><a href="<?= base_url() ?>pegawai/absen-harian" class="ml-4"><i class="fa fa-angle-right mr-2"></i>Ambil Absen</a></li>
-               <li class="child"><a href="<?= base_url() ?>pegawai/konfirmasi-absen" class="ml-4"><i class="fa fa-angle-right mr-2"></i>Konfirmasi Absen</a></li>
+               <li class="child"><a href="<?= base_url() ?>pegawai/absen-harian" class="ml-4"><i class="fa fa-angle-right mr-2"></i>Ambil Izin</a></li>
+               <!-- <li class="child"><a href="<?= base_url() ?>pegawai/konfirmasi-absen" class="ml-4"><i class="fa fa-angle-right mr-2"></i>Konfirmasi Absen</a></li> -->
                <li class="child"><a href="<?= base_url() ?>pegawai/absen-bulanan" class="ml-4"><i class="fa fa-angle-right mr-2"></i>Data Bulanan</a></li>
              </ul>
            </li>

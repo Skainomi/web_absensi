@@ -74,6 +74,9 @@ class Admin extends CI_Controller
 		// mengambil data user berdasarkan email yang ada di session
 		$data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
 		$data['jabatan'] = $this->Admin_model->getAlljabatan();
+		foreach ($data['jabatan'] as $key => $value) {
+			$data['jabatan'][$key]['overtime'] = 'Rp ' . number_format($data['jabatan'][$key]['overtime'], 2, ',', '.');
+		}
 		$this->load->view('backend/template/header', $data);
 		$this->load->view('backend/template/topbar', $data);
 		$this->load->view('backend/template/sidebar', $data);
@@ -88,7 +91,7 @@ class Admin extends CI_Controller
 
 		$jabatan = $this->input->post('jabatan', true);
 		$salary = $this->input->post('salary', true);
-		$overtime = $this->input->post('overtime', true);
+		$overtime = $salary / 173;
 		$data = [
 			"jabatan" => $jabatan,
 			"salary" => $salary,
@@ -108,7 +111,7 @@ class Admin extends CI_Controller
 		$id_jabatan = $this->input->post('id_jabatan', true);
 		$jabatan = $this->input->post('jabatan', true);
 		$salary = $this->input->post('salary', true);
-		$overtime = $this->input->post('overtime', true);
+		$overtime = $salary / 173;
 		$data = [
 			"jabatan" => $jabatan,
 			"salary" => $salary,
@@ -453,10 +456,31 @@ class Admin extends CI_Controller
 		$data['title'] = 'Input Absensi';
 		// mengambil data user berdasarkan email yang ada di session
 		$data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
-		$data['absensi'] = $this->Admin_model->getAbsensibyDate(date("Y-m-d"));
 		$data['fingerprint'] = $this->Admin_model->getFingerPrintAbsensi();
 		$data['pegawai'] = $this->Admin_model->getPegawai();
-		// $this->checkData($data['pegawai'][0]['id_pegawai']);
+		$data['list_th'] = $this->Admin_model->getTahunAbsensi();
+		$data['list_bln'] = $this->Admin_model->getBlnAbsensi();
+
+		$thn = $this->input->post('th');
+		$bln = $this->input->post('bln');
+		$data['blnselected'] = $bln;
+		$data['thnselected'] = $thn;
+
+		if ($bln < 10) {
+			$thnpilihan1 = $thn . '-' . '0' . $bln . '-' . '01' . ' 00:00:00';
+			$thnpilihan2 = $thn . '-' . '0' . $bln . '-' . '31' . ' 23:59:59';
+		} else {
+			$thnpilihan1 = $thn . '-' . $bln . '-' . '01' . ' 00:00:00';
+			$thnpilihan2 = $thn . '-' . $bln . '-' . '31' . ' 23:59:59';
+		}
+		if (empty($this->input->post('th'))) {
+			$data['absensi'] = $this->Admin_model->getAbsensi();
+		} else {
+			$data['absensi'] = $this->Admin_model->getAbsensibyDate($thnpilihan1, $thnpilihan2);
+		}
+		$data['blnnya'] = $bln;
+		$data['thn'] = $thn;
+
 		$entryDate = "";
 		$onCheck = false;
 		$pass = false;
@@ -481,21 +505,32 @@ class Admin extends CI_Controller
 			}
 			if ($pass) {
 				$exitDate = $value['datetime'];
-				$date1 = DateTime::createFromFormat('d/m/Y H:i:s', $entryDate);
-				$date2 = DateTime::createFromFormat('d/m/Y H:i:s', $exitDate);
+				$date1 = DateTime::createFromFormat('d/m/Y H:i:s', $entryDate, new DateTimeZone('Asia/Jakarta'));
+				$date2 = DateTime::createFromFormat('d/m/Y H:i:s', $exitDate, new DateTimeZone('Asia/Jakarta'));
+				$dayNow = $date1->format('D'); // Extracting day of the week directly from $date1
+
 				$dateInterval = $date1->diff($date2);
 				$hours = $dateInterval->h;
+
+				$hadirLembur  = "Lembur";
+				if (strcmp("Sat", $dayNow) == 0 || strcmp("Sun", $dayNow) == 0) {
+					$overtime = $hours;
+				} else {
+					$overtime = $hours - 8;
+					$hadirLembur  = ($hours - 8 > 0) ? " Lembur" : "";
+				}
+
 				$dataEmployee = $this->Admin_model->getPegawaibyFingerId($value['id_fingerprint'])[0];
-				$hadirLembur  = ($hours - 8 > 0) ? " Lembur" : "";
+
 				$dataRecap = [
 					"hadir" =>  "hadir" . $hadirLembur,
 					"name" => $dataEmployee['nama_pegawai'],
 					"id_pegawai" => $dataEmployee['id_pegawai'],
 					"kode_verifikasi" => $value['verification_code'],
-					"overtime" => $hours - 8,
+					"overtime" => $overtime,
 					"date" => $entryDate . " - " . $exitDate,
+					"day" => $dayNow
 				];
-				// $status = $this->db->insert('absensi', $data);
 				array_push($data['recap'], $dataRecap);
 				$entryDate = "";
 				$onCheck = false;
@@ -505,6 +540,7 @@ class Admin extends CI_Controller
 				$onCheck = true;
 			}
 		}
+
 		$this->load->view('backend/template/header', $data);
 		$this->load->view('backend/template/topbar', $data);
 		$this->load->view('backend/template/sidebar', $data);
@@ -564,20 +600,21 @@ class Admin extends CI_Controller
 	{
 		$idEmployee = $this->input->post('id_pegawai');
 		$idFingerPrint = $this->input->post('id_fingerprint');
-		$data = [
-			'id_pegawai' => $idEmployee,
-			'id_fingerprint' => $idFingerPrint
-		];
+		if ($this->Admin_model->checkFingerprintUnique($idFingerPrint, $idEmployee) == 0) {
+			$data = [
+				'id_pegawai' => $idEmployee,
+				'id_fingerprint' => $idFingerPrint
+			];
+		} else {
+			$this->session->set_flashdata('flashFinger', 'Data Gagal Ditambahkan, Data Sudah Terdaftar');
+			redirect('admin/tampil-input');
+			return;
+		}
 		try {
 			$this->db->insert('absensi_pegawai', $data);
 			$this->session->set_flashdata('flashFinger', 'Data Berhasil Ditambah');
-		}
-		// catch (mysqli_sql_exception $e) {
-		// 	$this->session->set_flashdata('flash', 'Data Absensi Masuk Gagal Pada ID Fingerprint ' . $rowData[0][2] . ' Silahkan Input ID Fingerprint Terlebih Dahulu');
-		// 	redirect('admin/tampil-input');
-		// } 
-		catch (Exception $e) {
-			$this->session->set_flashdata('flashFinger', 'Data Absensi Masuk Gagal Error : ' . $e);
+		} catch (Exception $e) {
+			$this->session->set_flashdata('flashFinger', 'Data Absensi Masuk Gagal, Error : ' . $e);
 			redirect('admin/tampil-input');
 		}
 		redirect('admin/tampil-input');
@@ -622,20 +659,22 @@ class Admin extends CI_Controller
 		$idEmployee = $this->input->post('id_pegawai');
 		$idFingerPrint = $this->input->post('id_fingerprint');
 		$id = $this->input->post('id');
-		$data = [
-			'id_pegawai' => $idEmployee,
-			'id_fingerprint' => $idFingerPrint
-		];
+
+		if ($this->Admin_model->checkFingerprintUnique($idFingerPrint, $idEmployee) == 0) {
+			$data = [
+				'id_pegawai' => $idEmployee,
+				'id_fingerprint' => $idFingerPrint
+			];
+		} else {
+			$this->session->set_flashdata('flashFinger', 'Data Gagal Diubah, Data Sudah Terdaftar');
+			redirect('admin/tampil-input');
+			return;
+		}
 		try {
 			$this->db->where('id', $id);
 			$this->db->update('absensi_pegawai', $data);
 			$this->session->set_flashdata('flashFinger', 'Data Berhasil Diubah');
-		}
-		// catch (mysqli_sql_exception $e) {
-		// 	$this->session->set_flashdata('flash', 'Data Absensi Masuk Gagal Pada ID Fingerprint ' . $rowData[0][2] . ' Silahkan Input ID Fingerprint Terlebih Dahulu');
-		// 	redirect('admin/tampil-input');
-		// } 
-		catch (Exception $e) {
+		} catch (Exception $e) {
 			$this->session->set_flashdata('flashFinger', 'Data Absensi Gagal Diubah Error : ' . $e);
 			redirect('admin/tampil-input');
 		}
@@ -903,24 +942,142 @@ class Admin extends CI_Controller
 	{
 		$data['title'] = 'Payrol Bulanan';
 		$data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
+		$data['fingerprint'] = $this->Admin_model->getFingerPrintAbsensi();
+		$data['pegawai'] = $this->Admin_model->getPegawai();
+		$data['list_th'] = $this->Admin_model->getTahunAbsensi();
+		$data['list_bln'] = $this->Admin_model->getBlnAbsensi();
+
 		$thn = $this->input->post('th');
 		$bln = $this->input->post('bln');
 		$data['blnselected'] = $bln;
 		$data['thnselected'] = $thn;
-		$data['pegawai'] = $this->Admin_model->getAllpegawai();
 
-
-		$data['list_th'] = $this->Admin_model->getTahun();
-		$data['list_bln'] = $this->Admin_model->getBln();
 		if ($bln < 10) {
-			$thnpilihan1 = $thn . '-' . '0' . $bln . '-' . '01';
-			$thnpilihan2 = $thn . '-' . '0' . $bln . '-' . '31';
+			$thnpilihan1 = $thn . '-' . '0' . $bln . '-' . '01' . ' 00:00:00';
+			$thnpilihan2 = $thn . '-' . '0' . $bln . '-' . '31' . ' 23:59:59';
 		} else {
-			$thnpilihan1 = $thn . '-' . $bln . '-' . '01';
-			$thnpilihan2 = $thn . '-' . $bln . '-' . '31';
+			$thnpilihan1 = $thn . '-' . $bln . '-' . '01' . ' 00:00:00';
+			$thnpilihan2 = $thn . '-' . $bln . '-' . '31' . ' 23:59:59';
+		}
+		if (empty($this->input->post('th'))) {
+			$data['absensi'] = $this->Admin_model->getAbsensi();
+		} else {
+			$data['absensi'] = $this->Admin_model->getAbsensibyDate($thnpilihan1, $thnpilihan2);
+		}
+		$data['blnnya'] = $bln;
+		$data['thn'] = $thn;
+
+		$entryDate = "";
+		$onCheck = false;
+		$pass = false;
+		$lembur = false;
+		$data['recap'] = [];
+
+		foreach ($data['absensi'] as $key => $value) {
+			if (!$onCheck) {
+				if (strcmp($value['status'], "Lembur Masuk") == 0) {
+					$lembur = true;
+				}
+			}
+			if ($onCheck) {
+				if ($lembur) {
+					if (strcmp($value['status'], "Lembur Keluar") == 0) {
+						$pass = true;
+					}
+				} else {
+					if (strcmp($value['status'], "C/Keluar") == 0) {
+						$pass = true;
+					}
+				}
+			}
+			if ($pass) {
+				$exitDate = $value['datetime'];
+				$date1 = DateTime::createFromFormat('d/m/Y H:i:s', $entryDate, new DateTimeZone('Asia/Jakarta'));
+				$date2 = DateTime::createFromFormat('d/m/Y H:i:s', $exitDate, new DateTimeZone('Asia/Jakarta'));
+				$dayNow = $date1->format('D'); // Extracting day of the week directly from $date1
+
+				$dateInterval = $date1->diff($date2);
+				$hours = $dateInterval->h;
+
+				$hadirLembur  = "Lembur";
+				if (strcmp("Sat", $dayNow) == 0 || strcmp("Sun", $dayNow) == 0) {
+					$overtime = $hours;
+				} else {
+					$overtime = $hours - 8;
+					$hadirLembur  = ($hours - 8 > 0) ? " Lembur" : "";
+				}
+
+				$dataEmployee = $this->Admin_model->getPegawaibyFingerId($value['id_fingerprint'])[0];
+				$jabatan = $this->Admin_model->getJabatanById($dataEmployee['jabatan']);
+				$dataRecap = [
+					"hadir" =>  "hadir" . $hadirLembur,
+					"name" => $dataEmployee['nama_pegawai'],
+					"id_pegawai" => $dataEmployee['id_pegawai'],
+					"kode_verifikasi" => $value['verification_code'],
+					"overtime" => $overtime,
+					"date" => $entryDate . " - " . $exitDate,
+					"day" => $dayNow
+				];
+				array_push($data['recap'], $dataRecap);
+				$entryDate = "";
+				$onCheck = false;
+				$pass = false;
+			} else if (!$onCheck) {
+				$entryDate = $value['datetime'];
+				$onCheck = true;
+			}
+		}
+		$data['gaji'] = [];
+		foreach ($data['recap'] as $key => $recapValue) {
+			$date = substr($recapValue['date'], 3, 7);
+			if (count($data['gaji']) == 0) {
+				$data['gaji'][$date] = [];
+
+				// $this->checkData($data['gaji']);
+			} else {
+				foreach ($data['gaji'] as $keyGaji => $gajiValue) {
+					if (strcmp($keyGaji, $date) == 0) {
+						break;
+					} else {
+						$data['gaji'][$date] = [];
+					}
+				}
+			}
+
+			$dataPenggajian = [];
+			foreach ($data['gaji'] as $keyPegawai => $pegawaiValue) {
+				$pegawai = $recapValue['id_pegawai'];
+				if (count($data['gaji'][$date]) == 0) {
+					$totalIzin = $this->Admin_model->totalIzinById($pegawai);
+					$dataPenggajian = [
+						"id_pegawai" => $recapValue['id_pegawai'],
+						"name" => $recapValue['name'],
+						"jabatan" => $jabatan['jabatan'],
+						"gaji_pokok" => $jabatan['salary'],
+						"lembur" => $recapValue['overtime'] * $jabatan['overtime'],
+						"Tanggal" => $date,
+						"jam_lembur" => $recapValue['overtime'],
+						"pengurangan" => ($jabatan['salary'] / 30) * $totalIzin,
+						"gaji_total" => "",
+						"keterangan" => $totalIzin,
+						"gaji_bersih" => "-",
+					];
+					
+					array_push($data['gaji'][$date], $dataPenggajian);
+				} else {
+					foreach ($data['gaji'][$date] as $keyGajiDate => $valGajiDate) {
+						if (strcmp($valGajiDate['id_pegawai'], $pegawai) == 0) {
+							$data['gaji'][$date][0]['jam_lembur'] += $recapValue['overtime'];
+							$data['gaji'][$date][0]['lembur'] += $recapValue['overtime'] * $jabatan['overtime'];
+						} else {
+							break;
+						}
+					}
+				}
+			}
 		}
 		// 
-		$data['gaji'] = $this->Admin_model->getAllGajiByDate($thnpilihan1, $thnpilihan2);
+		// $data['gaji'] = $this->Admin_model->getAllGajiByDate($thnpilihan1, $thnpilihan2);
 		$data['blnnya'] = $bln;
 		$data['thn'] = $thn;
 

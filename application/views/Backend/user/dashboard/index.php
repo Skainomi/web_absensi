@@ -38,7 +38,7 @@
            </div>
          </div>
 
-         <div class="col-lg-3 col-md-3 col-sm-6 col-12 mb-3">
+         <!-- <div class="col-lg-3 col-md-3 col-sm-6 col-12 mb-3">
            <div class="border shadow p-3 bg-danger">
              <p class="pw-2 text-center text-white">
                <i class="fa fa-bookmark"></i>
@@ -46,7 +46,7 @@
              </p>
              <p class="mt-2 text-white text-center">Konfirmasi Absen<br> <small class="bc-description text-white"></small></p>
            </div>
-         </div>
+         </div> -->
 
          <div class="col-lg-3 col-md-3 col-sm-6 col-12 mb-3">
            <div class="border shadow p-3 bg-primary">
@@ -73,7 +73,7 @@
    <!--/Dashboard widget-->
 
 
-   <div class="mt-1 mb-5 button-container">
+   <!-- <div class="mt-1 mb-5 button-container">
      <div class="card shadow-sm">
        <div class="card-header  bg-primary">
          <h6 class="text-white">Konfirmasi Absen Hari Ini</h6>
@@ -148,7 +148,7 @@
          </div>
        </div>
      </div>
-   </div>
+   </div> -->
 
 
    <!-- <div class="modal fade bd-example-modal-sm" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"> -->

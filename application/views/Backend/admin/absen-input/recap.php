@@ -15,12 +15,6 @@
  			<div class="col-sm-8 pt-2">
  				<h6 class="mb-4 bc-header">Rekap Absensi</h6>
  			</div>
- 			<div class="col-sm-4 text-right pb-3">
- 				<button class="btn btn-round btn-theme" data-toggle="modal" data-target="#inputModal"><i class="fa fa-plus"></i> Tambah</button>
- 			</div>
-
-
-
  		</div>
  		<div class="table-responsive">
  			<table id="recap" class="table table-striped table-bordered">
@@ -52,33 +46,5 @@
  				</tbody>
 
  			</table>
- 		</div>
- 		<div class="modal fade" id="inputModal" tabindex="-1" role="dialog" aria-labelledby="inputModalLabel">
- 			<div class="modal-dialog modal-lg">
- 				<div class="modal-content">
- 					<div class="modal-header text-center">
- 						<h5 class="modal-title text-secondary"><strong> Tambah Jabatan</strong></h5>
- 						<button type="button" class="close pull-right" data-dismiss="modal">&times;</button>
- 					</div>
- 					<div class="modal-body text-justify">
- 						<form class="form-horizontal" action="<?php echo base_url() . 'admin/input-absensi' ?>" method="post" enctype="multipart/form-data">
- 							<div class="modal-body">
- 								<div class="form-group">
- 									<label class="col-sm-12">Upload Files</label>
- 									<div class="col-sm-12">
- 										<input type="file" name="xlsx" class="form-control " required>
- 									</div>
- 								</div>
- 							</div>
- 					</div>
- 					<div class="modal-footer">
- 						<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Close</button>
- 						<button type="submit" class="btn btn-primary btn-flat" id="simpan">Upload</button>
-
- 					</div>
- 					</form>
- 				</div>
-
- 			</div>
  		</div>
  	</div>

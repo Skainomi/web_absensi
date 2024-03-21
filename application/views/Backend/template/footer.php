@@ -58,8 +58,6 @@
 <script src="<?= base_url() ?>/assets/js/jquery.dataTables.min.js"></script>
 <script src="<?= base_url() ?>/assets/js/dataTables.bootstrap4.min.js"></script>
 
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 <!--  -->
 <script>
 	//Nice select
@@ -67,36 +65,7 @@
 </script>
 
 <script>
-	var table = $('#example').DataTable();
-	
-	$('#min-date').datepicker();
-	$('#max-date').datepicker();
-
-	// Extend dataTables search
-	$.fn.dataTable.ext.search.push(
-		function(settings, data, dataIndex) {
-			var min = $('#min-date').val();
-			var max = $('#max-date').val();
-			var createdAt = data[4]; 
-
-			if (
-				(min == "" || max == "") ||
-				(moment(createdAt).isSameOrAfter(min) && moment(createdAt).isSameOrBefore(max))
-			) {
-				return true;
-			}
-			return false;
-		}
-	);
-	$('#min-date').on('changeDate', function() {
-		console.log("draw")
-		table.draw();
-	});
-	$('#min-date').on('changeDate', function() {
-		table.draw();
-	});
-
-
+	$('#example').DataTable();
 	$('#recap').DataTable();
 	$('#fingerprint').DataTable();
 </script>

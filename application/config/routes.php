@@ -130,7 +130,7 @@
     $route['pegawai/ambilabsen'] = 'pegawai/ambil_absen';
     $route['pegawai/ambilabsen-pulang'] = 'pegawai/ambil_absen_pulang';
     $route['pegawai/ambilabsen-lembur'] = 'pegawai/ambil_absen_lembur';
-    $route['pegawai/cuti-pegawai'] = 'pegawai/cuti_pegawai';
+    $route['pegawai/izin-pegawai'] = 'pegawai/cuti_pegawai';
     $route['pegawai/konfirmasi-absen'] = 'pegawai/konfirmasi_absen';
     $route['pegawai/absen-bulanan'] = 'pegawai/absen_bulanan';
     $route['pegawai/detail-absen/(:any)'] = 'pegawai/detail_absen/$1';
