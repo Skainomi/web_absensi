@@ -109,9 +109,11 @@
     $route['admin/cetak-absen-lembur/(:any)/(:any)'] = 'admin/cetak_absen_lembur/$1/$2';
     // TPP GAJI
     $route['admin/tpp-bulanan'] = 'admin/tpp_bulanan';
+    $route['admin/input-data-tpp'] = 'admin/inputPayrol';
     $route['admin/laporan-tpp-bulanan'] = 'admin/laporan_tpp_bulanan';
     $route['admin/detail-laporan-tpp/(:any)/(:any)/(:any)'] = 'admin/detail_laporan_tpp_bulanan/$1/$2/$3';
-    $route['admin/cetak-payrol-pegawai/(:any)/(:any)/(:any)'] = 'admin/cetak_payrol_pegawai/$1/$2/$3';
+    // $route['admin/cetak-payrol-pegawai/(:any)/(:any)/(:any)'] = 'admin/cetak_payrol_pegawai/$1/$2/$3';
+    $route['admin/cetak-payrol-pegawai/(:any)'] = 'admin/cetak_payrol_pegawai/$1';
 
 
     $route['admin/akumulasi-gaji'] = 'admin/akumulasi_gaji';

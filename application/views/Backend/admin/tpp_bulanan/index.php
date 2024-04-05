@@ -54,9 +54,9 @@
  					<div class="col-sm-8 pt-2">
  						<h6 class="mb-4 bc-header"><?= $title ?></h6>
  					</div>
- 					<div class="col-sm-4 text-right pb-3">
+ 					<!-- <div class="col-sm-4 text-right pb-3">
  						<button class="btn btn-round btn-theme" data-toggle="modal" data-target="#myModal"><i class="fa fa-plus"></i> Tambah</button>
- 					</div>
+ 					</div> -->
  				</div>
  				<div class="text-center mb-3">
 
@@ -76,11 +76,13 @@
  								<th>TANGGAL</th>
  								<th>JABATAN</th>
  								<th>GAJI POKOK</th>
+ 								<th>BONUS</th>
  								<th>JAM LEMBUR</th>
  								<th>LEMBUR</th>
  								<th>Izin</th>
  								<th>Pengurangan</th>
  								<th>GAJI BERSIH</th>
+ 								<th>AKSI</th>
  							</tr>
  						</thead>
  						<tbody>
@@ -96,11 +98,28 @@
  										<td><?= $key; ?></td>
  										<td><?= $b['jabatan']; ?></td>
  										<td><?= $b['gaji_pokok']; ?></td>
+ 										<td><?php echo 'Rp ' . number_format($b['bonus'], 2, ',', '.'); ?></td>
  										<td><?= $b['jam_lembur']; ?></td>
  										<td><?php echo 'Rp ' . number_format($b['lembur'], 2, ',', '.'); ?></td>
  										<td><?= $b['keterangan']; ?></td>
  										<td><?php echo 'Rp ' . number_format($b['pengurangan'], 2, ',', '.'); ?></td>
- 										<td><?php echo 'Rp ' . number_format($b['gaji_pokok'] - $b['pengurangan'] + $b['lembur'], 2, ',', '.'); ?></td>
+ 										<td><?php echo 'Rp ' . number_format($b['gaji_pokok'] - $b['pengurangan'] + $b['lembur'] + $b['bonus'], 2, ',', '.'); ?></td>
+ 										<td>
+ 											<form action="<?= base_url() ?>admin/input-data-tpp" method="post">
+ 												<input type="hidden" name="id" value="<?= $b['id_pegawai']; ?>">
+ 												<input type="hidden" name="name" value="<?= $b['name']; ?>">
+ 												<input type="hidden" name="tanggal" value="<?= $key; ?>">
+ 												<input type="hidden" name="jabatan" value="<?= $b['jabatan']; ?>">
+ 												<input type="hidden" name="gaji" value="<?= $b['gaji_pokok']; ?>">
+ 												<input type="hidden" name="bonus" value="<?= $b['bonus']; ?>">
+ 												<input type="hidden" name="jam_lembur" value="<?= $b['jam_lembur']; ?>">
+ 												<input type="hidden" name="lembur" value="<?= $b['lembur']; ?>">
+ 												<input type="hidden" name="izin" value="<?= $b['keterangan']; ?>">
+ 												<input type="hidden" name="pengurangan" value="<?= $b['pengurangan']; ?>">
+ 												<input type="hidden" name="gaji_bersih" value="<?= $b['gaji_pokok'] - $b['pengurangan'] + $b['lembur'] + $b['bonus']; ?>">
+ 												<button type="submit" class="btn btn-primary btn-flat" id="simpan">Tambah Data</button>
+ 											</form>
+ 										</td>
  									</tr>
  								<?php endforeach ?>
 

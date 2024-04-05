@@ -76,6 +76,7 @@ class Admin extends CI_Controller
 		$data['jabatan'] = $this->Admin_model->getAlljabatan();
 		foreach ($data['jabatan'] as $key => $value) {
 			$data['jabatan'][$key]['overtime'] = 'Rp ' . number_format($data['jabatan'][$key]['overtime'], 2, ',', '.');
+			$data['jabatan'][$key]['bonus'] = 'Rp ' . number_format($data['jabatan'][$key]['bonus'], 2, ',', '.');
 		}
 		$this->load->view('backend/template/header', $data);
 		$this->load->view('backend/template/topbar', $data);
@@ -91,11 +92,13 @@ class Admin extends CI_Controller
 
 		$jabatan = $this->input->post('jabatan', true);
 		$salary = $this->input->post('salary', true);
+		$bonus = $this->input->post('bonus', true);
 		$overtime = $salary / 173;
 		$data = [
 			"jabatan" => $jabatan,
 			"salary" => $salary,
 			"overtime" => $overtime,
+			"bonus" => $bonus,
 
 		];
 		$this->db->insert('jabatan', $data);
@@ -112,10 +115,12 @@ class Admin extends CI_Controller
 		$jabatan = $this->input->post('jabatan', true);
 		$salary = $this->input->post('salary', true);
 		$overtime = $salary / 173;
+		$bonus = $this->input->post('bonus', true);
 		$data = [
 			"jabatan" => $jabatan,
 			"salary" => $salary,
 			"overtime" => $overtime,
+			"bonus" => $bonus,
 
 		];
 		$this->db->where('id_jabatan', $id_jabatan);
@@ -432,9 +437,12 @@ class Admin extends CI_Controller
 		$data['title'] = 'Tampil Konfirmasi';
 		// mengambil data user berdasarkan email yang ada di session
 		$data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
-		$data['konfirmasi'] = $this->Admin_model->getAllKonfirmasiByDate();
-		// var_dump($data['konfirmasi']);
-		// die;
+		// $data['konfirmasi'] = $this->Admin_model->getAllKonfirmasiByDate();
+		$data['absensi'] = $this->Admin_model->getIzin();
+		foreach ($data['absensi'] as $key => $value) {
+			$value['pegawai'] = $this->Admin_model->getPegawaiById($value['id_pegawai']);
+		}
+
 
 		$this->load->view('backend/template/header', $data);
 		$this->load->view('backend/template/topbar', $data);
@@ -554,44 +562,50 @@ class Admin extends CI_Controller
 
 	public function inputAbsensi()
 	{
+		$this->load->helper("file");
 		$config['upload_path']          = './xlsx/absensi/';
 		$config['allowed_types']        = 'xlsx';
 		$config['file_name']        = 'absensi.xlsx';
 		$this->load->library('upload', $config);
-
+		$inputFileName = $config['upload_path'] . $config['file_name'];
 		if (!$this->upload->do_upload('xlsx')) {
 			$error = array('error' => $this->upload->display_errors());
 		} else {
 			$data = array('upload_data' => $this->upload->data());
 		}
-		$inputFileName = "./xlsx/absensi/" . "absensi.xlsx";
 		$reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
 		$reader->setReadDataOnly(true);
 		$spreadsheet = $reader->load($inputFileName);
+		unlink($inputFileName);
 		$targetSheet = $spreadsheet->getSheet(2);
 		$highestRow = $targetSheet->getHighestRow();
 		$highestColumn = $targetSheet->getHighestColumn();
 
-		for ($row = 2; $row <= 100; $row++) {
-			$rowData = $targetSheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
-			$data = [
-				"id_fingerprint" => $rowData[0][2],
-				"departement" => $rowData[0][0],
-				"datetime" => $rowData[0][3],
-				"name" => $rowData[0][1],
-				"status" => $rowData[0][4],
-				"verification_code" => $rowData[0][5]
-			];
-			try {
+		$this->db->trans_start();
+		try {
+			for ($row = 2; $row <= 200; $row++) {
+				$rowData = $targetSheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
+				$data = [
+					"id_fingerprint" => $rowData[0][2],
+					"departement" => $rowData[0][0],
+					"datetime" => $rowData[0][3],
+					"name" => $rowData[0][1],
+					"status" => $rowData[0][4],
+					"verification_code" => $rowData[0][5]
+				];
 				$this->db->insert('absensi', $data);
-			} catch (mysqli_sql_exception $e) {
-				$this->session->set_flashdata('flash', 'Data Absensi Masuk Gagal Pada ID Fingerprint ' . $rowData[0][2] . ' Silahkan Input ID Fingerprint Terlebih Dahulu');
-				redirect('admin/tampil-input');
-			} catch (Exception $e) {
-				$this->session->set_flashdata('flash', 'Data Absensi Masuk Gagal Error : ' . $e);
-				redirect('admin/tampil-input');
 			}
+			$this->db->trans_commit();
+		} catch (mysqli_sql_exception $e) {
+			$this->db->trans_rollback();
+			$this->session->set_flashdata('flash', 'Data Absensi Masuk Gagal Pada ID Fingerprint ' . $rowData[0][2] . ' Silahkan Input ID Fingerprint Terlebih Dahulu');
+			redirect('admin/tampil-input');
+		} catch (Exception $e) {
+			$this->db->trans_rollback();
+			$this->session->set_flashdata('flash', 'Data Absensi Masuk Gagal Error : ' . $e);
+			redirect('admin/tampil-input');
 		}
+
 		$this->session->set_flashdata('flash', 'Data Absensi Masuk Berhasil');
 		redirect('admin/tampil-input');
 	}
@@ -600,7 +614,8 @@ class Admin extends CI_Controller
 	{
 		$idEmployee = $this->input->post('id_pegawai');
 		$idFingerPrint = $this->input->post('id_fingerprint');
-		if ($this->Admin_model->checkFingerprintUnique($idFingerPrint, $idEmployee) == 0) {
+
+		if ($this->Admin_model->checkFingerprintUnique(0, $idFingerPrint, $idEmployee) == 0) {
 			$data = [
 				'id_pegawai' => $idEmployee,
 				'id_fingerprint' => $idFingerPrint
@@ -660,7 +675,7 @@ class Admin extends CI_Controller
 		$idFingerPrint = $this->input->post('id_fingerprint');
 		$id = $this->input->post('id');
 
-		if ($this->Admin_model->checkFingerprintUnique($idFingerPrint, $idEmployee) == 0) {
+		if ($this->Admin_model->checkFingerprintUnique($id, $idFingerPrint, $idEmployee) == 0) {
 			$data = [
 				'id_pegawai' => $idEmployee,
 				'id_fingerprint' => $idFingerPrint
@@ -972,7 +987,6 @@ class Admin extends CI_Controller
 		$pass = false;
 		$lembur = false;
 		$data['recap'] = [];
-
 		foreach ($data['absensi'] as $key => $value) {
 			if (!$onCheck) {
 				if (strcmp($value['status'], "Lembur Masuk") == 0) {
@@ -994,8 +1008,7 @@ class Admin extends CI_Controller
 				$exitDate = $value['datetime'];
 				$date1 = DateTime::createFromFormat('d/m/Y H:i:s', $entryDate, new DateTimeZone('Asia/Jakarta'));
 				$date2 = DateTime::createFromFormat('d/m/Y H:i:s', $exitDate, new DateTimeZone('Asia/Jakarta'));
-				$dayNow = $date1->format('D'); // Extracting day of the week directly from $date1
-
+				$dayNow = $date1->format('D');
 				$dateInterval = $date1->diff($date2);
 				$hours = $dateInterval->h;
 
@@ -1027,13 +1040,15 @@ class Admin extends CI_Controller
 				$onCheck = true;
 			}
 		}
+
 		$data['gaji'] = [];
+
+		// $this->checkData($data['recap']);
+
 		foreach ($data['recap'] as $key => $recapValue) {
 			$date = substr($recapValue['date'], 3, 7);
 			if (count($data['gaji']) == 0) {
 				$data['gaji'][$date] = [];
-
-				// $this->checkData($data['gaji']);
 			} else {
 				foreach ($data['gaji'] as $keyGaji => $gajiValue) {
 					if (strcmp($keyGaji, $date) == 0) {
@@ -1059,18 +1074,36 @@ class Admin extends CI_Controller
 						"jam_lembur" => $recapValue['overtime'],
 						"pengurangan" => ($jabatan['salary'] / 30) * $totalIzin,
 						"gaji_total" => "",
+						"bonus" => $jabatan['bonus'],
 						"keterangan" => $totalIzin,
 						"gaji_bersih" => "-",
 					];
-					
 					array_push($data['gaji'][$date], $dataPenggajian);
 				} else {
+					$newData = false;
 					foreach ($data['gaji'][$date] as $keyGajiDate => $valGajiDate) {
 						if (strcmp($valGajiDate['id_pegawai'], $pegawai) == 0) {
-							$data['gaji'][$date][0]['jam_lembur'] += $recapValue['overtime'];
-							$data['gaji'][$date][0]['lembur'] += $recapValue['overtime'] * $jabatan['overtime'];
+							$data['gaji'][$date][$keyGajiDate]['jam_lembur'] += $recapValue['overtime'];
+							$data['gaji'][$date][$keyGajiDate]['lembur'] += $recapValue['overtime'] * $jabatan['overtime'];
 						} else {
-							break;
+							if ($keyGajiDate == count($data['gaji'][$date]) - 1) {
+								$totalIzin = $this->Admin_model->totalIzinById($pegawai);
+								$dataPenggajian = [
+									"id_pegawai" => $recapValue['id_pegawai'],
+									"name" => $recapValue['name'],
+									"jabatan" => $jabatan['jabatan'],
+									"gaji_pokok" => $jabatan['salary'],
+									"lembur" => $recapValue['overtime'] * $jabatan['overtime'],
+									"Tanggal" => $date,
+									"jam_lembur" => $recapValue['overtime'],
+									"pengurangan" => ($jabatan['salary'] / 30) * $totalIzin,
+									"gaji_total" => "",
+									"bonus" => $jabatan['bonus'],
+									"keterangan" => $totalIzin,
+									"gaji_bersih" => "-",
+								];
+								array_push($data['gaji'][$date], $dataPenggajian);
+							}
 						}
 					}
 				}
@@ -1081,11 +1114,34 @@ class Admin extends CI_Controller
 		$data['blnnya'] = $bln;
 		$data['thn'] = $thn;
 
+		// $this->checkData($data['gaji']);
+		// return;
+
 		$this->load->view('backend/template/header', $data);
 		$this->load->view('backend/template/topbar', $data);
 		$this->load->view('backend/template/sidebar', $data);
 		$this->load->view('backend/admin/tpp_bulanan/index', $data);
 		$this->load->view('backend/template/footer');
+	}
+
+	public function inputPayrol(){
+		$data = [
+			'id_pegawai'=> $this->input->post('id'),
+			'name'=> $this->input->post('name'),
+			'tanggal'=> $this->input->post('tanggal'),
+			'jabatan'=> $this->input->post('jabatan'),
+			'gaji'=> $this->input->post('gaji'),
+			'bonus'=> $this->input->post('bonus'),
+			'jam_lembur'=> $this->input->post('jam_lembur'),
+			'lembur'=> $this->input->post('lembur'),
+			'izin'=> $this->input->post('izin'),
+			'pengurangan'=> $this->input->post('pengurangan'),
+			'gaji_bersih'=> $this->input->post('gaji_bersih'),
+		];
+		
+		$this->checkData($data);
+		$this->db->insert('tb_payrol', $data);
+		redirect('admin/tpp-bulanan');
 	}
 	public function akumulasi_gaji()
 	{
@@ -1272,7 +1328,7 @@ class Admin extends CI_Controller
 			$thnpilihan2 = $thn . '-' . $bln . '-' . '31';
 		}
 		// 
-		$data['gaji'] = $this->Admin_model->getAllGajiByDate($thnpilihan1, $thnpilihan2);
+		$data['gaji'] = $this->Admin_model->getAllGaji();
 		$data['blnnya'] = $bln;
 		$data['thn'] = $thn;
 
@@ -1318,33 +1374,34 @@ class Admin extends CI_Controller
 		$this->load->view('backend/admin/laporan/detail_laporan_tpp', $data);
 		$this->load->view('backend/template/footer');
 	}
-	public function cetak_payrol_pegawai($id_pegawai, $bln, $thn)
+	public function cetak_payrol_pegawai($id)
 	{
 		$data['title'] = 'Lembur Bulanan';
 		// mengambil data user berdasarkan email yang ada di session
 
-		$data['blnselected'] = $bln;
-		$data['thnselected'] = $thn;
+		// $data['blnselected'] = $bln;
+		// $data['thnselected'] = $thn;
 
 		// $data['petugas'] = $this->db->get_where('user')->result_array();
 		// 
 
 
-		if ($bln < 10) {
-			$thnpilihan1 = $thn . '-' . '0' . $bln . '-' . '01';
-			$thnpilihan2 = $thn . '-' . '0' . $bln . '-' . '31';
-		} else {
-			$thnpilihan1 = $thn . '-' . $bln . '-' . '01';
-			$thnpilihan2 = $thn . '-' . $bln . '-' . '31';
-		}
+		// if ($bln < 10) {
+		// 	$thnpilihan1 = $thn . '-' . '0' . $bln . '-' . '01';
+		// 	$thnpilihan2 = $thn . '-' . '0' . $bln . '-' . '31';
+		// } else {
+		// 	$thnpilihan1 = $thn . '-' . $bln . '-' . '01';
+		// 	$thnpilihan2 = $thn . '-' . $bln . '-' . '31';
+		// }
 		// 
-		$data['gaji'] = $this->Admin_model->getAllGajiByDateID($thnpilihan1, $thnpilihan2, $id_pegawai);
-		$data['absen'] = $this->Admin_model->getAllLemburPegawaiById($thnpilihan1, $thnpilihan2, $id_pegawai);
+		// $data['gaji'] = $this->Admin_model->getAllGajiByDateID($thnpilihan1, $thnpilihan2, $id_pegawai);
+		$data['gaji'] = $this->Admin_model->getPayrolById($id)[0];
+		// $data['absen'] = $this->Admin_model->getAllLemburPegawaiById($thnpilihan1, $thnpilihan2, $id_pegawai);
 		// var_dump($data['absen']);
 		// die;
 
-		$data['blnnya'] = $bln;
-		$data['thn'] = $thn;
+		// $data['blnnya'] = $bln;
+		// $data['thn'] = $thn;
 		$this->load->view('backend/admin/laporan/cetak', $data);
 	}
 }

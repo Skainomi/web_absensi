@@ -123,6 +123,7 @@
  						<th>TGL/WAKTU AKHIR</th>
  						<th>KETERANGAN</th>
  						<th>SURAT</th>
+ 						<th>STATUS</th>
  					</tr>
  				</thead>
  				<tbody>
@@ -136,6 +137,7 @@
  							<td><?= $b['tanggal_akhir']; ?></td>
  							<td><?= $b['keterangan']; ?></td>
  							<td><a style="color:blue" href="./../gambar/Absensi/suratdokter/<?= $b['surat']; ?>"><?= $b['surat']; ?></a></td>
+ 							<td><?php echo $b['acc'] == 0 ? "Belum Diizinkan" : "Diizinkan"; ?></td>
  						</tr>
  					<?php endforeach ?>
  				</tbody>

@@ -85,15 +85,37 @@ class Admin_model extends CI_model
 		return $result->result_array();
 	}
 
-	public function checkFingerprintUnique($fingerPrint, $idPeg)
+	public function getPayrolById($id)
+	{
+		$sql = "SELECT * FROM `db_kepegawaian`.`tb_payrol` WHERE `id_payrol` = '$id'";
+		$result = $this->db->query($sql);
+		return $result->result_array();
+	}
+
+	public function getIzin()
+	{
+		$sql = "SELECT * FROM `izin`";
+		$result = $this->db->query($sql);
+		return $result->result_array();
+	}
+
+	public function checkFingerprintUnique($id, $fingerPrint, $idPeg)
 	{
 		$sql = "SELECT * FROM `absensi_pegawai` WHERE `absensi_pegawai`.`id_fingerprint` = '$fingerPrint'";
 		$result = $this->db->query($sql);
 		if ($result->num_rows() != 0) {
+			$data = $result->result_array();
+			if ($data[0]['id'] == $id) {
+				return 0;
+			}
 			return $result->num_rows();
 		}
 		$sql = "SELECT * FROM `absensi_pegawai` WHERE `absensi_pegawai`.`id_pegawai` = '$idPeg'";
 		$result = $this->db->query($sql);
+		$data = $result->result_array();
+		if ($data[0]['id'] == $id) {
+			return 0;
+		}
 		return $result->num_rows();
 	}
 
@@ -117,6 +139,13 @@ class Admin_model extends CI_model
 		$result = $this->db->query($sql);
 		$idEmployee = $result->result_array()[0]['id_pegawai'];
 		$sql = "SELECT * FROM `db_kepegawaian`.`tb_pegawai` WHERE `id_pegawai` = '$idEmployee'";
+		$result = $this->db->query($sql);
+		return $result->result_array();
+	}
+
+	public function getPegawaiById($id)
+	{
+		$sql = "SELECT * FROM `db_kepegawaian`.`tb_pegawai` WHERE `id_pegawai` = '$id'";
 		$result = $this->db->query($sql);
 		return $result->result_array();
 	}
@@ -197,6 +226,13 @@ class Admin_model extends CI_model
 	{
 		$sql = "SELECT tb_pegawai.nama_pegawai,jabatan.jabatan as namjab,jabatan.id_jabatan, tb_payrol.* from tb_payrol,jabatan, tb_pegawai  where 
         tb_payrol.id_pegawai= tb_pegawai.id_pegawai and tb_pegawai.jabatan=jabatan.id_jabatan and tb_payrol.periode between '$tgl1' and '$tgl2'";
+		$result = $this->db->query($sql);
+		return $result->result_array();
+	}
+
+	public function getAllGaji()
+	{
+		$sql = "SELECT * FROM `tb_payrol`";
 		$result = $this->db->query($sql);
 		return $result->result_array();
 	}

@@ -87,14 +87,15 @@ function nmbulan($angka)
       </tr>
       <tr>
         <td colspan=2><b>&nbsp;&nbsp;&nbsp;&nbsp;NAMA PEGAWAI</b></td>
-        <td colspan=4><b><?= strtoupper($gaji['nama_pegawai']) ?></b></td>
+        <td colspan=4><b><?= strtoupper($gaji['name']) ?></b></td>
       <tr>
         <td colspan=2><b>&nbsp;&nbsp;&nbsp;&nbsp;PERIODE</b></td>
-        <td colspan=4> <b><?= nmbulan(substr($gaji['periode'], 5, 2)) ?></b></td>
+        <!-- <td colspan=4> <b><?= nmbulan(substr($gaji['tanggal'], 5, 2)) ?></b></td> -->
+        <td colspan=4> <b><?= nmbulan(substr($gaji['tanggal'], 0, 2)) ?></b></td>
       </tr>
       <tr>
         <td colspan=2><b>&nbsp;&nbsp;&nbsp;&nbsp;JABATAN</b>
-        <td colspan=4><b><?= strtoupper($gaji['namjab']) ?></b></td>
+        <td colspan=4><b><?= strtoupper($gaji['jabatan']) ?></b></td>
       </tr>
       <tr height="40px">
         <td colspan=11 class="align-middle">
@@ -107,12 +108,12 @@ function nmbulan($angka)
       <tr>
         <th width=44 scope=col class="text-center">1</th>
         <th width=300 scope=col>Gaji Pokok </th>
-        <th width=508 scope=col colspan="5"><?= rupiah($gaji['gaji_pokok']) ?></th>
+        <th width=508 scope=col colspan="5"><?= rupiah($gaji['gaji']) ?></th>
       </tr>
       <tr>
         <th width=44 scope=col class="text-center">2</th>
         <th width=300 scope=col>Upah Lembur </th>
-        <th width=508 scope=col colspan="5"><?= rupiah($gaji['gaji_lembur']) ?></th>
+        <th width=508 scope=col colspan="5"><?= rupiah($gaji['lembur']) ?></th>
       </tr>
       <tr>
         <th width=44 scope=col class="text-center">3</th>
@@ -137,19 +138,19 @@ function nmbulan($angka)
         <td colspan=2 align='center' colspan="3"><b> ABSENSI/KEHADIRAN</b></td>
       </tr>
       <tr>
-        <td colspan=4 rowspan="4" align='center' class="align-middle"><b><?= strtoupper($gaji['keterangan']) ?></b></td>
-        <td align='center' colspan="3"><b> Masuk : <?= $absen['masuk'] ?></b></td>
+        <td colspan=4 rowspan="4" align='center' class="align-middle"><b><?= $gaji['keterangan'] ?></b></td>
+        <!-- <td align='center' colspan="3"><b> Masuk : <?= $gaji['masuk'] ?></b></td> -->
       </tr>
       <tr>
 
-        <td align='center' colspan="3"><b> Lembur : <?= $absen['jumlem'] ?></b></td>
+        <td align='center' colspan="3"><b> Lembur : <?= $gaji['jam_lembur'] ?></b></td>
       </tr>
       <tr>
-        <td align='center' colspan="3"><b> Izin Sakit : <?= $absen['sakit'] ?></b></td>
+        <td align='center' colspan="3"><b> Izin Sakit : <?= $gaji['izin'] ?></b></td>
       </tr>
       <tr>
 
-        <td align='center' colspan="3"><b> Izin Tidak Masuk : <?= $absen['izin'] ?></b></td>
+        <td align='center' colspan="3"><b> Izin Tidak Masuk : <?= $gaji['izin'] ?></b></td>
       </tr>
 
 
