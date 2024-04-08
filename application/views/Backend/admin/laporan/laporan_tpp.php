@@ -144,7 +144,8 @@
  								<th>BONUS</th>
  								<th>JAM LEMBUR</th>
  								<th>LEMBUR</th>
- 								<th>Izin</th>
+ 								<th>IZIN</th>
+ 								<th>SAKIT</th>
  								<th>Pengurangan</th>
  								<th>GAJI BERSIH</th>
  								<th>AKSI</th>
@@ -166,6 +167,7 @@
  									<td><?= $b['jam_lembur']; ?></td>
  									<td><?= $b['lembur']; ?></td>
  									<td><?= $b['izin']; ?></td>
+ 									<td><?= $b['sakit']; ?></td>
  									<td><?= $b['pengurangan']; ?></td>
  									<td><?= $b['gaji_bersih']; ?></td>
  									<td width="20px">

@@ -832,12 +832,10 @@ class Admin extends CI_Controller
 			$thnpilihan1 = $thn . '-' . $bln . '-' . '01';
 			$thnpilihan2 = $thn . '-' . $bln . '-' . '31';
 		}
-		// 
 		$data['absen'] = $this->Admin_model->getAllAbsen($thnpilihan1, $thnpilihan2, $id_peg);
 
 		$data['blnnya'] = $bln;
 		$data['thn'] = $thn;
-
 
 		$this->load->view('backend/template/header', $data);
 		$this->load->view('backend/template/topbar', $data);
@@ -1064,6 +1062,17 @@ class Admin extends CI_Controller
 				$pegawai = $recapValue['id_pegawai'];
 				if (count($data['gaji'][$date]) == 0) {
 					$totalIzin = $this->Admin_model->totalIzinById($pegawai);
+					$sakit = 0;
+					$izin = 0;
+					foreach ($totalIzin as $value) {
+						if ($value['acc'] == 1) {
+							if (strcmp($value['jenis'], "Sakit") == 0) {
+								$sakit += 1;
+							} else {
+								$izin += 1;
+							}
+						}
+					}
 					$dataPenggajian = [
 						"id_pegawai" => $recapValue['id_pegawai'],
 						"name" => $recapValue['name'],
@@ -1072,15 +1081,16 @@ class Admin extends CI_Controller
 						"lembur" => $recapValue['overtime'] * $jabatan['overtime'],
 						"Tanggal" => $date,
 						"jam_lembur" => $recapValue['overtime'],
-						"pengurangan" => ($jabatan['salary'] / 30) * $totalIzin,
+						"pengurangan" => ($jabatan['salary'] / 30) * count($totalIzin),
 						"gaji_total" => "",
 						"bonus" => $jabatan['bonus'],
 						"keterangan" => $totalIzin,
+						"sakit" => $sakit,
+						"izin" => $izin,
 						"gaji_bersih" => "-",
 					];
 					array_push($data['gaji'][$date], $dataPenggajian);
 				} else {
-					$newData = false;
 					foreach ($data['gaji'][$date] as $keyGajiDate => $valGajiDate) {
 						if (strcmp($valGajiDate['id_pegawai'], $pegawai) == 0) {
 							$data['gaji'][$date][$keyGajiDate]['jam_lembur'] += $recapValue['overtime'];
@@ -1088,6 +1098,17 @@ class Admin extends CI_Controller
 						} else {
 							if ($keyGajiDate == count($data['gaji'][$date]) - 1) {
 								$totalIzin = $this->Admin_model->totalIzinById($pegawai);
+								$sakit = 0;
+								$izin = 0;
+								foreach ($totalIzin as $value) {
+									if ($value['acc'] == 1) {
+										if (strcmp($value['jenis'], "Sakit") == 0) {
+											$sakit += 1;
+										} else {
+											$izin += 1;
+										}
+									}
+								}
 								$dataPenggajian = [
 									"id_pegawai" => $recapValue['id_pegawai'],
 									"name" => $recapValue['name'],
@@ -1096,9 +1117,11 @@ class Admin extends CI_Controller
 									"lembur" => $recapValue['overtime'] * $jabatan['overtime'],
 									"Tanggal" => $date,
 									"jam_lembur" => $recapValue['overtime'],
-									"pengurangan" => ($jabatan['salary'] / 30) * $totalIzin,
+									"pengurangan" => ($jabatan['salary'] / 30) * count($totalIzin),
 									"gaji_total" => "",
 									"bonus" => $jabatan['bonus'],
+									"sakit" => $sakit,
+									"izin" => $izin,
 									"keterangan" => $totalIzin,
 									"gaji_bersih" => "-",
 								];
@@ -1116,7 +1139,6 @@ class Admin extends CI_Controller
 
 		// $this->checkData($data['gaji']);
 		// return;
-
 		$this->load->view('backend/template/header', $data);
 		$this->load->view('backend/template/topbar', $data);
 		$this->load->view('backend/template/sidebar', $data);
@@ -1124,22 +1146,24 @@ class Admin extends CI_Controller
 		$this->load->view('backend/template/footer');
 	}
 
-	public function inputPayrol(){
+	public function inputPayrol()
+	{
 		$data = [
-			'id_pegawai'=> $this->input->post('id'),
-			'name'=> $this->input->post('name'),
-			'tanggal'=> $this->input->post('tanggal'),
-			'jabatan'=> $this->input->post('jabatan'),
-			'gaji'=> $this->input->post('gaji'),
-			'bonus'=> $this->input->post('bonus'),
-			'jam_lembur'=> $this->input->post('jam_lembur'),
-			'lembur'=> $this->input->post('lembur'),
-			'izin'=> $this->input->post('izin'),
-			'pengurangan'=> $this->input->post('pengurangan'),
-			'gaji_bersih'=> $this->input->post('gaji_bersih'),
+			'id_pegawai' => $this->input->post('id'),
+			'name' => $this->input->post('name'),
+			'tanggal' => $this->input->post('tanggal'),
+			'jabatan' => $this->input->post('jabatan'),
+			'gaji' => $this->input->post('gaji'),
+			'bonus' => $this->input->post('bonus'),
+			'jam_lembur' => $this->input->post('jam_lembur'),
+			'lembur' => $this->input->post('lembur'),
+			'izin' => $this->input->post('izin'),
+			'pengurangan' => $this->input->post('pengurangan'),
+			'gaji_bersih' => $this->input->post('gaji_bersih'),
+			'sakit' => $this->input->post('sakit'),
 		];
-		
-		$this->checkData($data);
+
+		// $this->checkData($data);
 		$this->db->insert('tb_payrol', $data);
 		redirect('admin/tpp-bulanan');
 	}
@@ -1276,9 +1300,28 @@ class Admin extends CI_Controller
 	}
 
 
+	public function izinStatusAcc($id)
+	{
+		$data = array(
+			"acc" => "1"
+		);
+		$this->db->where('id', $id);
+		$this->db->update('izin', $data);
+		redirect('admin/tampil-konfirmasi');
+	}
+
+	public function izinStatusDenied($id)
+	{
+		$data = array(
+			"acc" => "0"
+		);
+		$this->db->where('id', $id);
+		$this->db->update('izin', $data);
+		redirect('admin/tampil-konfirmasi');
+	}
+
 	public function edit_gaji()
 	{
-
 		$bonus = $this->input->post('bonus', true);
 		$keterangan = $this->input->post('keterangan', true);
 		$id_payrol = $this->input->post('id_payrol', true);
@@ -1315,7 +1358,6 @@ class Admin extends CI_Controller
 		$data['blnselected'] = $bln;
 		$data['thnselected'] = $thn;
 		$data['pegawai'] = $this->Admin_model->getAllpegawai();
-
 
 		$data['list_th'] = $this->Admin_model->getTahun();
 		$data['list_bln'] = $this->Admin_model->getBln();
@@ -1402,6 +1444,9 @@ class Admin extends CI_Controller
 
 		// $data['blnnya'] = $bln;
 		// $data['thn'] = $thn;
+
+		// $this->checkData($data['gaji']);
+
 		$this->load->view('backend/admin/laporan/cetak', $data);
 	}
 }

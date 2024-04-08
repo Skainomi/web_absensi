@@ -80,6 +80,7 @@
  								<th>JAM LEMBUR</th>
  								<th>LEMBUR</th>
  								<th>Izin</th>
+ 								<th>sakit</th>
  								<th>Pengurangan</th>
  								<th>GAJI BERSIH</th>
  								<th>AKSI</th>
@@ -101,7 +102,8 @@
  										<td><?php echo 'Rp ' . number_format($b['bonus'], 2, ',', '.'); ?></td>
  										<td><?= $b['jam_lembur']; ?></td>
  										<td><?php echo 'Rp ' . number_format($b['lembur'], 2, ',', '.'); ?></td>
- 										<td><?= $b['keterangan']; ?></td>
+ 										<td><?= $b['izin']; ?></td>
+ 										<td><?= $b['sakit']; ?></td>
  										<td><?php echo 'Rp ' . number_format($b['pengurangan'], 2, ',', '.'); ?></td>
  										<td><?php echo 'Rp ' . number_format($b['gaji_pokok'] - $b['pengurangan'] + $b['lembur'] + $b['bonus'], 2, ',', '.'); ?></td>
  										<td>
@@ -114,7 +116,8 @@
  												<input type="hidden" name="bonus" value="<?= $b['bonus']; ?>">
  												<input type="hidden" name="jam_lembur" value="<?= $b['jam_lembur']; ?>">
  												<input type="hidden" name="lembur" value="<?= $b['lembur']; ?>">
- 												<input type="hidden" name="izin" value="<?= $b['keterangan']; ?>">
+ 												<input type="hidden" name="izin" value="<?= $b['izin']; ?>">
+ 												<input type="hidden" name="sakit" value="<?= $b['sakit']; ?>">
  												<input type="hidden" name="pengurangan" value="<?= $b['pengurangan']; ?>">
  												<input type="hidden" name="gaji_bersih" value="<?= $b['gaji_pokok'] - $b['pengurangan'] + $b['lembur'] + $b['bonus']; ?>">
  												<button type="submit" class="btn btn-primary btn-flat" id="simpan">Tambah Data</button>

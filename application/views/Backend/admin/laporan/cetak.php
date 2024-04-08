@@ -146,7 +146,7 @@ function nmbulan($angka)
         <td align='center' colspan="3"><b> Lembur : <?= $gaji['jam_lembur'] ?></b></td>
       </tr>
       <tr>
-        <td align='center' colspan="3"><b> Izin Sakit : <?= $gaji['izin'] ?></b></td>
+        <td align='center' colspan="3"><b> Izin Sakit : <?= $gaji['sakit'] ?></b></td>
       </tr>
       <tr>
 
@@ -162,7 +162,7 @@ function nmbulan($angka)
       <tr>
         <td width="430"><br><br><br><br></td>
         <td class="text" align="center"><br>
-          <br><br><b>Penanggung Jawab<br><br><br><br><br> HRD</b>
+          <br><b>Penanggung Jawab<br><br><br><br><br> HRD</b>
         </td>
       </tr>
     </table>

@@ -154,7 +154,7 @@ class Admin_model extends CI_model
 	{
 		$sql = "SELECT * FROM `izin` WHERE `izin`.`id_pegawai` = '$id'";
 		$result = $this->db->query($sql);
-		return $result->num_rows();
+		return $result->result_array();
 	}
 
 	public function getJabatanById($id)

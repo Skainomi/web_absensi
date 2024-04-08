@@ -81,6 +81,9 @@
     $route['admin/konfirmasi-absen-lembur/(:any)/(:any)'] = 'admin/konfirmasi_absen_lembur/$1/$2';
     $route['admin/konfirmasi-absen-izinsakit/(:any)'] = 'admin/konfirmasi_absen_izin_sakit/$1';
     $route['admin/konfirmasi-absen-izin-tidak-masuk/(:any)'] = 'admin/konfirmasi_absen_izin_tdkmsk/$1';
+    $route['admin/acc-izin/(:any)'] = 'admin/izinStatusAcc/$1';
+    $route['admin/hapus-izin/(:any)'] = 'admin/izinStatusDenied/$1';
+
 
     $route['admin/tampil-input'] = 'admin/tampilInput';
     $route['admin/input-absensi'] = 'admin/inputAbsensi';
