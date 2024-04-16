@@ -118,6 +118,7 @@
  				<thead>
  					<tr>
  						<th>No</th>
+ 						<th>NAMA</th>
  						<th>JENIS</th>
  						<th>TGL/WAKTU AWAL</th>
  						<th>TGL/WAKTU AKHIR</th>
@@ -133,6 +134,7 @@
 						foreach ($absensi as $b) : ?>
  						<tr>
  							<td><?= $no++ ?></td>
+ 							<td><?= $b['pegawai'][0]['nama_pegawai']; ?></td>
  							<td><?= $b['jenis']; ?></td>
  							<td><?= $b['tanggal_awal']; ?></td>
  							<td><?= $b['tanggal_akhir']; ?></td>

@@ -117,6 +117,8 @@
     $route['admin/detail-laporan-tpp/(:any)/(:any)/(:any)'] = 'admin/detail_laporan_tpp_bulanan/$1/$2/$3';
     // $route['admin/cetak-payrol-pegawai/(:any)/(:any)/(:any)'] = 'admin/cetak_payrol_pegawai/$1/$2/$3';
     $route['admin/cetak-payrol-pegawai/(:any)'] = 'admin/cetak_payrol_pegawai/$1';
+    $route['admin/hapus-payrol/(:any)'] = 'admin/hapusPayrol/$1';
+
 
 
     $route['admin/akumulasi-gaji'] = 'admin/akumulasi_gaji';

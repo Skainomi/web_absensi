@@ -55,7 +55,7 @@
  						<tr>
  							<td><?= $no++ ?></td>
  							<td><?= $b['jabatan']; ?></td>
- 							<td><?= $b['salary']; ?></td>
+ 							<td><?= rupiah($b['salary']); ?></td>
  							<td><?= $b['bonus']; ?></td>
  							<td><?= $b['overtime']; ?></td>
  							<td>

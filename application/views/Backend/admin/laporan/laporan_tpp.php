@@ -144,11 +144,14 @@
  								<th>BONUS</th>
  								<th>JAM LEMBUR</th>
  								<th>LEMBUR</th>
+ 								<th>HADIR</th>
+ 								<th>TIDAK HADIR</th>
  								<th>IZIN</th>
  								<th>SAKIT</th>
  								<th>Pengurangan</th>
  								<th>GAJI BERSIH</th>
  								<th>AKSI</th>
+ 								<th></th>
  								<th></th>
  							</tr>
  						</thead>
@@ -162,14 +165,16 @@
  									<td><?= $b['name']; ?></td>
  									<td><?= $b['tanggal']; ?></td>
  									<td><?= $b['jabatan']; ?></td>
- 									<td><?= $b['gaji']; ?></td>
- 									<td><?= $b['bonus']; ?></td>
- 									<td><?= $b['jam_lembur']; ?></td>
- 									<td><?= $b['lembur']; ?></td>
- 									<td><?= $b['izin']; ?></td>
- 									<td><?= $b['sakit']; ?></td>
- 									<td><?= $b['pengurangan']; ?></td>
- 									<td><?= $b['gaji_bersih']; ?></td>
+ 									<td><?php echo 'Rp ' . number_format($b['gaji'], 2, ',', '.'); ?></td>
+ 									<td><?php echo 'Rp ' . number_format($b['bonus'], 2, ',', '.'); ?></td>
+ 									<td><?= $b['jam_lembur']; ?> Jam</td>
+ 									<td><?php echo 'Rp ' . number_format($b['lembur'], 2, ',', '.'); ?></td>
+ 									<td><?= $b['hadir']; ?> Hari</td>
+ 									<td><?= $b['tidak_hadir']; ?> Hari</td>
+ 									<td><?= $b['izin']; ?> Hari</td>
+ 									<td><?= $b['sakit']; ?> Hari</td>
+ 									<td><?php echo 'Rp ' . number_format($b['pengurangan'], 2, ',', '.'); ?></td>
+ 									<td><?php echo 'Rp ' . number_format($b['gaji_bersih'], 2, ',', '.'); ?></td>
  									<td width="20px">
  										<a href="<?= base_url('admin/detail-laporan-tpp') ?>/<?= $b['id_pegawai']; ?>/<?= $blnselected; ?>/<?= $thnselected; ?>" class="ml-3 mb-0">
  											<button type="button" class="btn btn-theme">
@@ -181,6 +186,13 @@
  										<a target="_blank" href="<?= base_url(); ?>admin/cetak-payrol-pegawai/<?= $b['id_payrol']; ?>/<?php echo $blnnya  ?>/<?php echo $thn  ?>" class="ml-0">
  											<button type="button" class="btn btn-danger">
  												<i class="fa fa-print"></i>
+ 											</button>
+ 										</a>
+ 									</td>
+ 									<td>
+ 										<a href="<?= base_url(); ?>admin/hapus-payrol/<?= $b['id_payrol']; ?>" class="ml-0">
+ 											<button type="button" class="btn btn-danger">
+ 												<i class="fa fa-close"></i>
  											</button>
  										</a>
  									</td>

@@ -78,6 +78,47 @@ class Admin_model extends CI_model
 
 
 	//Madi
+
+	public function getIndonesiaHolidays($year)
+	{
+		$apiKey = '063077f4-6134-4c6f-a765-c213f316cfd9'; // Replace 'your-api-key' with your actual API key
+		$url = "https://holidayapi.com/v1/holidays?country=ID&year=$year&key=$apiKey";
+
+		// Initialize cURL
+		$curl = curl_init();
+
+		// Set cURL options
+		curl_setopt_array($curl, array(
+			CURLOPT_URL => $url,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_FOLLOWLOCATION => true,
+			CURLOPT_SSL_VERIFYPEER => false, // Disable SSL verification (only for testing purposes)
+		));
+
+		// Execute cURL request
+		$response = curl_exec($curl);
+
+		// Check for errors
+		if (curl_errno($curl)) {
+			// Handle cURL error
+			$error_message = curl_error($curl);
+			// You may log or handle the error appropriately
+			return null;
+		}
+
+		// Close cURL session
+		curl_close($curl);
+
+		// Decode JSON response
+		$responseData = json_decode($response, true);
+		// Check if response is valid
+		if (isset($responseData['holidays'])) {
+			return $responseData['holidays'];
+		} else {
+			// Handle invalid response
+			return null;
+		}
+	}
 	public function getAbsensibyDate($date1, $date2)
 	{
 		$sql = "SELECT * FROM `absensi` WHERE STR_TO_DATE(`absensi`.`datetime`, '%d/%m/%Y %H:%i:%s') BETWEEN '$date1' AND '$date2'";
