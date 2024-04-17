@@ -561,7 +561,6 @@ class Admin extends CI_Controller
 	}
 
 
-
 	public function inputAbsensi()
 	{
 		$this->load->helper("file");
@@ -585,7 +584,7 @@ class Admin extends CI_Controller
 
 		$this->db->trans_start();
 		try {
-			for ($row = 2; $row <= 100; $row++) {
+			for ($row = 2; $row <= $highestRow; $row++) {
 				$rowData = $targetSheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
 				$data = [
 					"id_fingerprint" => $rowData[0][2],
@@ -595,7 +594,14 @@ class Admin extends CI_Controller
 					"status" => $rowData[0][4],
 					"verification_code" => $rowData[0][5]
 				];
-				$this->db->insert('absensi', $data);
+				if (!$this->db->insert('absensi', $data)) {
+					$db_error = $this->db->error();
+					if ($db_error['message'] != "") {
+						$this->db->trans_rollback();
+						$this->session->set_flashdata('flash', 'Data Absensi Masuk Gagal Pada ID Fingerprint ' . $rowData[0][2] . ' Silahkan Input ID Fingerprint Terlebih Dahulu');
+						redirect('admin/tampil-input');
+					}
+				}
 			}
 			$this->db->trans_commit();
 		} catch (mysqli_sql_exception $e) {
@@ -996,6 +1002,7 @@ class Admin extends CI_Controller
 				$pegawai = $recapValue['id_pegawai'];
 				if (count($data['gaji'][$date]) == 0) {
 					$totalIzin = $this->Admin_model->totalIzinById($pegawai);
+					$valueTotalIzin = 0;
 					$sakit = 0;
 					$izin = 0;
 					foreach ($totalIzin as $value) {
@@ -1005,6 +1012,7 @@ class Admin extends CI_Controller
 							} else {
 								$izin += 1;
 							}
+							$valueTotalIzin += 1;
 						}
 					}
 					$dataPenggajian = [
@@ -1016,7 +1024,7 @@ class Admin extends CI_Controller
 						"Tanggal" => $date,
 						"jam_lembur" => $recapValue['overtime'],
 						"value_pengurangan" => ($jabatan['salary'] / 30),
-						"pengurangan" => ($jabatan['salary'] / 30) * count($totalIzin),
+						"pengurangan" => ($jabatan['salary'] / 30) * $valueTotalIzin,
 						"gaji_total" => "",
 						"hadir" => 1,
 						"tidak_hadir" => 0,
@@ -1024,7 +1032,7 @@ class Admin extends CI_Controller
 						"sakit" => $sakit,
 						"izin" => $izin,
 						"gaji_bersih" => "-",
-						"keterangan" => count($totalIzin),
+						"keterangan" => $valueTotalIzin,
 					];
 					array_push($data['gaji'][$date], $dataPenggajian);
 				} else {
@@ -1037,6 +1045,7 @@ class Admin extends CI_Controller
 							if ($keyGajiDate == count($data['gaji'][$date]) - 1) {
 								$totalIzin = $this->Admin_model->totalIzinById($pegawai);
 								$sakit = 0;
+								$valueTotalIzin = 0;
 								$izin = 0;
 								foreach ($totalIzin as $value) {
 									if ($value['acc'] == 1) {
@@ -1045,6 +1054,7 @@ class Admin extends CI_Controller
 										} else {
 											$izin += 1;
 										}
+										$valueTotalIzin += 1;
 									}
 								}
 								$dataPenggajian = [
@@ -1056,14 +1066,14 @@ class Admin extends CI_Controller
 									"Tanggal" => $date,
 									"jam_lembur" => $recapValue['overtime'],
 									"value_pengurangan" => ($jabatan['salary'] / 30),
-									"pengurangan" => ($jabatan['salary'] / 30) * count($totalIzin),
+									"pengurangan" => ($jabatan['salary'] / 30) * $valueTotalIzin,
 									"gaji_total" => "",
 									"hadir" => 1,
 									"tidak_hadir" => 0,
 									"bonus" => $jabatan['bonus'],
 									"sakit" => $sakit,
 									"izin" => $izin,
-									"keterangan" => count($totalIzin),
+									"keterangan" => $valueTotalIzin,
 									"gaji_bersih" => "-",
 								];
 								array_push($data['gaji'][$date], $dataPenggajian);
@@ -1239,6 +1249,7 @@ class Admin extends CI_Controller
 				if (count($data['gaji'][$date]) == 0) {
 					$totalIzin = $this->Admin_model->totalIzinById($pegawai);
 					$sakit = 0;
+					$valueTotalIzin = 0;
 					$izin = 0;
 					foreach ($totalIzin as $value) {
 						if ($value['acc'] == 1) {
@@ -1247,6 +1258,7 @@ class Admin extends CI_Controller
 							} else {
 								$izin += 1;
 							}
+							$valueTotalIzin += 1;
 						}
 					}
 					$dataPenggajian = [
@@ -1258,7 +1270,7 @@ class Admin extends CI_Controller
 						"Tanggal" => $date,
 						"jam_lembur" => $recapValue['overtime'],
 						"value_pengurangan" => ($jabatan['salary'] / 30),
-						"pengurangan" => ($jabatan['salary'] / 30) * count($totalIzin),
+						"pengurangan" => ($jabatan['salary'] / 30) * $valueTotalIzin,
 						"gaji_total" => "",
 						"hadir" => 1,
 						"tidak_hadir" => 0,
@@ -1266,7 +1278,7 @@ class Admin extends CI_Controller
 						"sakit" => $sakit,
 						"izin" => $izin,
 						"gaji_bersih" => "-",
-						"keterangan" => count($totalIzin),
+						"keterangan" => $valueTotalIzin,
 					];
 					array_push($data['gaji'][$date], $dataPenggajian);
 				} else {
@@ -1280,6 +1292,7 @@ class Admin extends CI_Controller
 								$totalIzin = $this->Admin_model->totalIzinById($pegawai);
 								$sakit = 0;
 								$izin = 0;
+								$valueTotalIzin = 0;
 								foreach ($totalIzin as $value) {
 									if ($value['acc'] == 1) {
 										if (strcmp($value['jenis'], "Sakit") == 0) {
@@ -1287,6 +1300,7 @@ class Admin extends CI_Controller
 										} else {
 											$izin += 1;
 										}
+										$valueTotalIzin += 1;
 									}
 								}
 								$dataPenggajian = [
@@ -1298,14 +1312,14 @@ class Admin extends CI_Controller
 									"Tanggal" => $date,
 									"jam_lembur" => $recapValue['overtime'],
 									"value_pengurangan" => ($jabatan['salary'] / 30),
-									"pengurangan" => ($jabatan['salary'] / 30) * count($totalIzin),
+									"pengurangan" => ($jabatan['salary'] / 30) * $valueTotalIzin,
 									"gaji_total" => "",
 									"hadir" => 1,
 									"tidak_hadir" => 0,
 									"bonus" => $jabatan['bonus'],
 									"sakit" => $sakit,
 									"izin" => $izin,
-									"keterangan" => count($totalIzin),
+									"keterangan" => $valueTotalIzin,
 									"gaji_bersih" => "-",
 								];
 								array_push($data['gaji'][$date], $dataPenggajian);
