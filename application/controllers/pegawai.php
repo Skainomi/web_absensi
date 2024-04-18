@@ -750,7 +750,7 @@ class pegawai extends CI_Controller
 				}
 			}
 		}
-		$this->checkData($dataFinal);
+		// $this->checkData($dataFinal);
 		$data['dataFinal'] = $dataFinal;
 		// return;
 
