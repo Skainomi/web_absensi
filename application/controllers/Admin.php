@@ -190,6 +190,8 @@ class Admin extends CI_Controller
 		$upload_image1 = $_FILES['userfilektp']['name'];
 		// var_dump($upload_image1);
 		// die;
+
+		$fotoName = "";
 		if ($upload_image) {
 			$config['upload_path']          = './gambar/pegawai/';
 			$config['allowed_types']        = 'gif|jpg|png|PNG|jpeg';
@@ -200,14 +202,14 @@ class Admin extends CI_Controller
 
 			if ($this->upload->do_upload('userfilefoto')) {
 				$new_image = $this->upload->data('file_name');
-				$data = $this->db->set('foto', $new_image);
+				$fotoName = $new_image;
 				$gambar_user = $new_image;
 			} else {
 				echo $this->upload->display_errors();
 			}
 		}
 		//upload foto ktp
-
+		$ktpName = "";
 		if ($upload_image1) {
 			$config['upload_path']          = './gambar/pegawai/';
 			$config['allowed_types']        = 'gif|jpg|png|PNG|jpeg';
@@ -218,27 +220,12 @@ class Admin extends CI_Controller
 
 			if ($this->upload->do_upload('userfilektp')) {
 				$new_image1 = $this->upload->data('file_name');
-				$data = $this->db->set('ktp', $new_image1);
+				// $data = $this->db->set('ktp', $new_image1);
+				$ktpName = $new_image1;
 			} else {
 				echo $this->upload->display_errors();
 			}
 		}
-
-		// 
-		$data = [
-			"id_pegawai" => $id_pegawai,
-			"id_user" => $id_user,
-			"nama_pegawai" => $nama_pegawai,
-			"jekel" => $jekel,
-			"pendidikan" => $pendidikan,
-			"status_kepegawaian" => $status_pegawai,
-			"agama" => $agama,
-			"jabatan" => $jabatan,
-			"no_hp" => $nohp,
-			"alamat" => $alamat,
-			"tanggal_masuk" => $tgl_msk
-		];
-		$this->db->insert('tb_pegawai', $data);
 
 		$data1 = [
 			"id" => $id_user,
@@ -252,7 +239,28 @@ class Admin extends CI_Controller
 			'temp' => $temp
 
 		];
+
 		$this->db->insert('user', $data1);
+
+		// 
+		$data = [
+			"id_pegawai" => $id_pegawai,
+			"id_user" => $id_user,
+			"nama_pegawai" => $nama_pegawai,
+			"jekel" => $jekel,
+			"pendidikan" => $pendidikan,
+			"status_kepegawaian" => $status_pegawai,
+			"agama" => $agama,
+			"jabatan" => $jabatan,
+			"no_hp" => $nohp,
+			"alamat" => $alamat,
+			"tanggal_masuk" => $tgl_msk,
+			"ktp" => $ktpName,
+			"foto" => $fotoName,
+		];
+		$this->db->insert('tb_pegawai', $data);
+
+
 		$this->session->set_flashdata('flash', 'Berhasil ditambah');
 		redirect('admin/pegawai');
 	}
