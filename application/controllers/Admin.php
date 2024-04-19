@@ -591,6 +591,7 @@ class Admin extends CI_Controller
 		$highestRow = $targetSheet->getHighestRow();
 		$highestColumn = $targetSheet->getHighestColumn();
 
+		$this->db->db_debug = false;
 		$this->db->trans_start();
 		try {
 			for ($row = 2; $row <= $highestRow; $row++) {
